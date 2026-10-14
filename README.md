@@ -1,5 +1,12 @@
 # DSH Connect Qoder
 
+> **本机 fork 说明**：本仓库是 [上游 dsh-connect-qoder](https://github.com/eghrhegpe/dsh-connect-qoder)
+> **0.5.0** 的本地副本（上游基线见首个提交）。唯一的本地改动是
+> **上下文窗口支持按模型逐个选择**（对齐 Qoder 客户端里 200K / 400K / 1M 的档位）：
+> 新增 `contextWindowOverrides` 设置字段，卡片每个模型行多出一个窗口下拉。
+> 改动清单见 `CHANGELOG.md` 的「本地分支」条目；跟进上游新版时**不要整体覆盖**，
+> 按该条目把 host 半（`lib/index.js`）与卡片半（`lib/client.js`）的两处改动重新套用。
+
 把本机已登录的 **Qoder** 模型接入 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)，
 零配置即可在 DSH 的模型选择器里使用你的 Qoder 账号额度。
 
