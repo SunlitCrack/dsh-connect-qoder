@@ -1,0 +1,107 @@
+{
+  "name": "@eghrhegpe/dsh-connect-qoder",
+  "displayName": "DSH Connect Qoder",
+  "description": "Bring the Qoder models already signed in on this machine into DeepSeek Harness with zero configuration.",
+  "version": "0.5.0",
+  "author": "eghrhegpe",
+  "homepage": "https://github.com/eghrhegpe/dsh-connect-qoder",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eghrhegpe/dsh-connect-qoder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eghrhegpe/dsh-connect-qoder/issues"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "deepseek",
+    "qoder",
+    "model-provider"
+  ],
+  "type": "module",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test \"test/*.test.js\"",
+    "test:card": "node --test test/card-dom.test.js",
+    "test:live": "node scripts/verify-live.mjs",
+    "probe:maxtokens": "node scripts/probe-max-tokens.mjs",
+    "probe:params": "node scripts/probe-params.mjs",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-lines=68 --test-coverage-branches=82 --test-coverage-functions=66 \"test/*.test.js\"",
+    "verify": "npm run typecheck && npm run audit:any && npm run audit:explicit:any && npm run build && npm test && npm run verify:host && npm run verify:bundle",
+    "verify:deploy": "node scripts/check-deploy-drift.mjs",
+    "audit:any": "node scripts/audit-implicit-any.mjs",
+    "audit:explicit:any": "node scripts/audit-explicit-any.mjs",
+    "verify:host": "node scripts/verify-host-bundle.mjs",
+    "verify:bundle": "node scripts/verify-bundle-behaviour.mjs",
+    "build:host": "node scripts/clean-host-bundle.mjs && tsdown -c tsdown.config.mjs",
+    "build:client": "node scripts/build-client.mjs --tsdown --write",
+    "build": "npm run build:host && npm run build:client",
+    "prepack": "npm run build"
+  },
+  "main": "./lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "locale/*.json",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "jsdom": "^30.1.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tsdown": "^0.23.0",
+    "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "license": "MIT",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-settings-plugins",
+        "@deepseek-ai/dsh-client-locale"
+      ],
+      "platform": "web"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.4 <5.0.0",
+    "@deepseek-ai/dsh-client-locale": ">=0.2.0-rc.0 <0.3",
+    "@deepseek-ai/dsh-client-ui-settings": ">=0.2.0-rc.0 <0.3",
+    "@deepseek-ai/dsh-client-ui-slots": ">=0.2.0-rc.0 <0.3",
+    "@deepseek-ai/dsh-home-paths": ">=0.2.0-rc.0 <0.3",
+    "@deepseek-ai/dsh-host-webserver": ">=0.2.0-rc.0 <0.3",
+    "@deepseek-ai/dsh-llm": ">=0.2.0-rc.0 <0.3",
+    "@deepseek-ai/dsh-llm-pi-ai": ">=0.2.0-rc.0 <0.3",
+    "@deepseek-ai/dsh-settings": ">=0.2.0-rc.0 <0.3",
+    "@deepseek-ai/schemastery": "^3.18.3",
+    "@earendil-works/pi-ai": ">=0.85.0 <0.88.0"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    }
+  }
+}
