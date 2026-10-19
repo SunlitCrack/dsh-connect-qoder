@@ -39,6 +39,45 @@
 - 验证：mock 网关四场景全绿——单切续接（两腿内容完整拼接）、双切续接（三腿拼接）、
   正常单腿（行为与旧版一致）、连切 21 腿后如实报错。`node --check` 通过。
 
+**Teams 账户的「共享资源包」不再漏显示**
+
+- 根因（本机实测）：Teams 账户除套餐内 Credits 外还有一份**组织共享**的额度池，上游
+  `/sash/api/v2/me/usage` 把它放在 `orgResourcePackage` 里，而它的总量字段叫 **`cap`
+  不是 `total`**：
+  `{"used":1433,"remaining":4567,"percentage":0.24,"unit":"credits","cap":6000,"available":true}`。
+  插件只读 `userQuota` / `addOnQuota` / `dedicatedPackages` 三处，`orgResourcePackage`
+  从未被读取；即便读了，用于归一化的 `normalizeQuotaBucket` 要求 `total > 0`，取不到
+  `total` 就直接丢弃——所以 IDE 里明明有「共享资源包 1,431 / 6,000」，卡片上只剩
+  「套餐内 Credits 3,000 / 3,000」，看起来额度读残了。
+- 修复：新增 `normalizeOrgResourcePackage`，优先认 `total`、回退认 `cap`，并接入
+  `fetchUsage` 与「有无数据」判定；卡片在套餐行下方多渲染一行「共享资源包 / Shared
+  resource package」。`cap <= 0`、非对象一律拒绝，没有共享包的账户行为不变。
+- 验证：真机真实凭据打真实上游——`fetchUsage` 返回 `orgResourcePackage.total === 6000`，
+  套餐行仍为 3000，两行同时成立；`cap=0`、`null` 均被拒绝。
+
+**Qoder 装在非默认盘时，umid 机器身份不再读取失败**
+
+- 根因（本机实测）：`umidRootsFor` 只猜 `%LOCALAPPDATA%\Programs\Qoder`，而本机安装位置
+  被改到 `D:\Qoder`（launcher 的 `state.ini` 记着 `installDir=D:\Qoder`），
+  `%LOCALAPPDATA%\Programs\Qoder` 这个目录**根本不存在**——于是 `readUmidInfo` 返回
+  `null`，卡片报「the desktop app machine identity (umid) could not be read」，而
+  `D:\Qoder\resources\umid\runtime-info.exe` 实际上**能正常跑**并输出完整的
+  `{machineToken, machineType, machineCode}`。
+- 修复：**先读 launcher 自己记录的位置**（`%LOCALAPPDATA%\Qoder\Qoder Launcher` 下的
+  `state.ini` / `install.ini`），从 `installDir` 与 `appExecutable` 推出当前版本根
+  （如 `D:\Qoder\.qoder-versions\0.4.8`），再退回原有的默认路径猜测。装了默认位置、
+  没装 launcher、INI 读不到或字段缺失，全部退化为「无候选」，原有行为一字不变。
+- 验证：真机 `umidRootsFor` 候选根里 `D:\Qoder\.qoder-versions\0.4.8` 与 `D:\Qoder` 均在列，
+  `readUmidInfo` 成功读到 `machineCode`；`node --check` 通过。
+
+**修复依据的可重跑证据**
+
+- `scripts/verify-usage-org-package.mjs`：断言上游响应的总量字段确实叫 `cap`、默认路径
+  确实不存在、launcher 记录的路径确实可跑 umid。
+- `scripts/verify-runtime-usage.mjs`：加载真源模块，用真实凭据打真实上游，断言
+  `cap→total` 归一化、umid 根解析、`fetchUsage` 完整形状全部成立。
+- 两个脚本不入库（`.gitignore` 已排除），仅作本次修复的复跑凭据。
+
 ---
 
 ## 本地分支 — 2026-10-14（未发布）

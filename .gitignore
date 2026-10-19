@@ -5,3 +5,11 @@ dist/
 .env
 .DS_Store
 Thumbs.db
+
+# One-off verification scripts for the local fixes; they assert against paths
+# and binaries that exist only on this machine (a Qoder install at D:\Qoder),
+# so they stay local. Listed by exact name rather than a glob: package.json
+# already ships scripts/verify-live.mjs and scripts/verify-*.mjs would swallow it.
+scripts/verify-runtime-usage.mjs
+scripts/verify-usage-org-package.mjs
+lib/index.probe.mjs

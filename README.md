@@ -216,6 +216,17 @@ dsh plugin --profile web add <本仓库路径>
   `active: false` 设计不渲染。插件在 OpenAPI 请求上自动附加这组头（Windows 上定位安装
   目录的 `resources\umid\runtime-info.exe` 读取，失败静默降级为原头组；国内版与 PAT
   不受影响；发现与验证记录在 [docs/KNOWN_GAPS.md 第 8 条（国际版 campaigns 端点按 umid 机器身份门控每日签到）](docs/KNOWN_GAPS.md)）。
+  **安装目录先按 launcher 自己的记录定位**：`%LOCALAPPDATA%\<产品>\<产品> Launcher`
+  下的 `state.ini` / `install.ini` 记着真实安装位置（`installDir`）与当前运行的版本
+  （`appExecutable`，形如 `.qoder-versions\<v>\Qoder.exe`），两者推出当前版本根；只有在
+  这些记录缺失时才退回 `%LOCALAPPDATA%\Programs\<产品>` 的默认路径猜测。安装到非系统盘
+  （launcher 指向 `D:\Qoder` 之类）时，默认路径根本不存在，只认默认路径会让 umid 永远
+  读不到、每日签到静默消失。
+- **用量面板显示的额度块**：卡片按上游实际返回的字段逐块渲染，缺哪块就不显示哪块——
+  套餐内 Credits（`userQuota`）、个人资源包（`addOnQuota`）、**共享资源包**
+  （`orgResourcePackage`，Teams 账户的组织共享额度池）、以及每个专属资源包
+  （`dedicatedResourcePackages`）。共享资源包的总量字段上游叫 **`cap` 而不是 `total`**，
+  所以它走单独的归一化：先认 `total`、再回退 `cap`，没有共享额度的账户这一行不出现。
 
 ## 目录
 
