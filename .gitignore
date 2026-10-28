@@ -13,3 +13,7 @@ Thumbs.db
 scripts/verify-runtime-usage.mjs
 scripts/verify-usage-org-package.mjs
 lib/index.probe.mjs
+
+# 本机调试残留（改动前的手工备份），不入库
+*.bak-*
+*.bak
